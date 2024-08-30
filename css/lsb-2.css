@@ -1,0 +1,18 @@
+body {
+    background-color: rgb(107, 140, 248);
+}
+
+#main {
+    margin: auto;
+    width: 600px;
+    height: 400px;
+}
+
+h1 {
+    color: white;
+}
+
+#message {
+    width: 450px;
+    height: 100px;
+}

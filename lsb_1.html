@@ -4,15 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Esteganografia LSB</title>
+    <link rel="stylesheet" href="/css/lsb-1.css">
 </head>
 <body>
-    <h1>Esteganografia LSB - 1 bit</h1>
+    <div id="main">
+        <h1>Esteganografia LSB - 1 bit</h1>
     
     <!-- Carregar imagem para esconder a mensagem -->
     <label for="imageLoader">Carregar imagem original:</label>
     <input type="file" id="imageLoader" name="imageLoader" />
     <br>
-    
+    <br>
     <!-- Texto para esconder na imagem -->
     <textarea id="message" placeholder="Digite sua mensagem ASCII aqui..."></textarea>
     <br>
@@ -33,6 +35,7 @@
     
     <!-- Canvas para exibir as imagens -->
     <canvas id="imageCanvas" width="256" height="256" style="display: none;"></canvas>
+    </div>
     
     <script src="/js/esteganografia1lsb.js"></script>
 </body>
