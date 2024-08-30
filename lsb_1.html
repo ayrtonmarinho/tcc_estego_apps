@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Esteganografia LSB</title>
+</head>
+<body>
+    <h1>Esteganografia LSB - 1 bit</h1>
+    
+    <!-- Carregar imagem para esconder a mensagem -->
+    <label for="imageLoader">Carregar imagem original:</label>
+    <input type="file" id="imageLoader" name="imageLoader" />
+    <br>
+    
+    <!-- Texto para esconder na imagem -->
+    <textarea id="message" placeholder="Digite sua mensagem ASCII aqui..."></textarea>
+    <br>
+    
+    <!-- Botões para esconder a mensagem e salvar a imagem -->
+    <button onclick="encodeMessage()">Esconder Mensagem</button>
+    <button id="saveImageButton" onclick="saveImage()" style="display: none;">Salvar Imagem</button>
+    <br>
+    
+    <!-- Carregar imagem esteganografada para extrair a mensagem -->
+    <label for="imageLoaderDecode">Carregar imagem esteganografada:</label>
+    <input type="file" id="imageLoaderDecode" name="imageLoaderDecode" />
+    <br>
+    
+    <!-- Botão para revelar a mensagem -->
+    <button onclick="decodeMessage()">Revelar Mensagem</button>
+    <br>
+    
+    <!-- Canvas para exibir as imagens -->
+    <canvas id="imageCanvas" width="256" height="256" style="display: none;"></canvas>
+    
+    <script src="/js/esteganografia1lsb.js"></script>
+</body>
+</html>
