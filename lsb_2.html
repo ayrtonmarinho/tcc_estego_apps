@@ -4,35 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Esteganografia LSB - 2 bits</title>
+    <link rel="stylesheet" href="/css/lsb-2.css">
 </head>
 <body>
-    <h1>Esteganografia LSB - 2 bits</h1>
+    <div id="main">
+        <h1>Esteganografia LSB - 2 bits</h1>
     
-    <!-- Carregar imagem para esconder a mensagem -->
-    <label for="imageLoader">Carregar imagem original:</label>
-    <input type="file" id="imageLoader" name="imageLoader" />
-    <br>
-    
-    <!-- Texto para esconder na imagem -->
-    <textarea id="message" placeholder="Digite sua mensagem ASCII aqui..."></textarea>
-    <br>
-    
-    <!-- Botões para esconder a mensagem e salvar a imagem -->
-    <button onclick="encodeMessage()">Esconder Mensagem</button>
-    <button id="saveImageButton" onclick="saveImage()" style="display: none;">Salvar Imagem</button>
-    <br>
-    
-    <!-- Carregar imagem esteganografada para extrair a mensagem -->
-    <label for="imageLoaderDecode">Carregar imagem esteganografada:</label>
-    <input type="file" id="imageLoaderDecode" name="imageLoaderDecode" />
-    <br>
-    
-    <!-- Botão para revelar a mensagem -->
-    <button onclick="decodeMessage()">Revelar Mensagem</button>
-    <br>
-    
-    <!-- Canvas para exibir as imagens -->
-    <canvas id="imageCanvas" width="256" height="256" style="display: none;"></canvas>
+        <!-- Carregar imagem para esconder a mensagem -->
+        <label for="imageLoader">Carregar imagem original:</label>
+        <input type="file" id="imageLoader" name="imageLoader" />
+        <br>
+        <br>
+        
+        <!-- Texto para esconder na imagem -->
+        <textarea id="message" placeholder="Digite sua mensagem ASCII aqui..."></textarea>
+        <br>
+        
+        <!-- Botões para esconder a mensagem e salvar a imagem -->
+        <button onclick="encodeMessage()">Esconder Mensagem</button>
+        <button id="saveImageButton" onclick="saveImage()" style="display: none;">Salvar Imagem</button>
+        <br>
+        
+        <!-- Carregar imagem esteganografada para extrair a mensagem -->
+        <label for="imageLoaderDecode">Carregar imagem esteganografada:</label>
+        <input type="file" id="imageLoaderDecode" name="imageLoaderDecode" />
+        <br>
+        
+        <!-- Botão para revelar a mensagem -->
+        <button onclick="decodeMessage()">Revelar Mensagem</button>
+        <br>
+        
+        <!-- Canvas para exibir as imagens -->
+        <canvas id="imageCanvas" width="256" height="256" style="display: none;"></canvas>
+    </div>
     
     <script src="/js/estaganografia2lsb.js"></script>
 </body>
