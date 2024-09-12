@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Esteganografia LSB</title>
+    <script src="https://stuk.github.io/jszip/dist/jszip.min.js"></script>
+    <link rel="stylesheet" href="/css/appx.css">
+</head>
+<body>
+    <h1>Esteganografar Imagens em Serie</h1>
+    <div id="main">
+        <div id="box">
+            <input type="file" id="imageInput" multiple accept="image/*">
+            <br>
+            <span id="countphrases"></span>
+            <br>
+            <textarea id="messagesInput" placeholder="Insira as mensagens separadas por vírgula (ASCII)" rows="4" cols="50"></textarea>
+            <br>
+            <label for="bits">Quantidade de bits LSB:</label>
+            <select id="bits">
+                <option value="1">1 bit</option>
+                <option value="2">2 bits</option>
+            </select>
+            <br><br>
+            <button id="processImages">Processar Imagens</button>
+            <a id="downloadLink" style="display: none;">Baixar ZIP</a>
+
+        </div>
+    </div>
+    <script>
+        const processImages = async (files, messages, bits) => {
+            const zip = new JSZip();
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 256;
+            canvas.height = 256;
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const message = messages[i].trim(); // Remove espaços extras das mensagens
+                const imgData = await loadImage(file);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(imgData, 0, 0, 256, 256);
+
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imageData.data;
+
+                encodeMessage(data, message, bits);
+
+                ctx.putImageData(imageData, 0, 0);
+
+                const newImage = canvas.toDataURL('image/png');
+                zip.file(`${file.name.split('.')[0]}_steg.png`, newImage.split(',')[1], { base64: true });
+            }
+
+            zip.generateAsync({ type: "blob" })
+                .then(content => {
+                    const downloadLink = document.getElementById("downloadLink");
+                    downloadLink.href = URL.createObjectURL(content);
+                    downloadLink.download = "images_steganography.zip";
+                    downloadLink.style.display = 'block';
+                    downloadLink.click();
+                });
+        };
+
+        const loadImage = (file) => {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    img.src = event.target.result;
+                    img.onload = () => resolve(img);
+                    img.onerror = (err) => reject(err);
+                };
+                reader.readAsDataURL(file);
+            });
+        };
+
+        const encodeMessage = (data, message, bits) => {
+            const messageBin = messageToBinaryASCII(message);
+
+            let dataIndex = 0;
+            for (let i = 0; i < messageBin.length && dataIndex < data.length; i++) {
+                for (let bit = 0; bit < bits; bit++) {
+                    const bytePos = (i * bits) + bit;
+                    const byte = messageBin[bytePos];
+
+                    if (byte !== undefined) {
+                        data[dataIndex] = (data[dataIndex] & ~(1 << bit)) | (byte << bit);
+                    }
+                    dataIndex += 4; // Avança ao próximo pixel (considerando imagens RGBA)
+                }
+            }
+        };
+
+        const messageToBinaryASCII = (message) => {
+            let binary = [];
+            for (let i = 0; i < message.length; i++) {
+                // Para cada caractere da mensagem, converte para código ASCII
+                let charBin = message.charCodeAt(i).toString(2).padStart(8, '0');
+                binary = binary.concat(charBin.split('').map(Number));
+            }
+            return binary;
+        };
+
+        document.getElementById('processImages').addEventListener('click', () => {
+            const files = document.getElementById('imageInput').files;
+            const messagesInput = document.getElementById('messagesInput').value;
+            const messages = messagesInput.split(',');
+
+            const bits = parseInt(document.getElementById('bits').value);
+
+            if (files.length !== messages.length) {
+                alert("A quantidade de imagens e mensagens deve ser igual.");
+                return;
+            }
+
+            processImages(files, messages, bits);
+        });
+
+        function contarFrases() {
+            // Pega o valor do textarea
+            const texto = document.getElementById("messagesInput").value;
+            
+            // Remove espaços extras no início e no final, e divide o texto por vírgulas
+            const frases = texto.split(',').filter(frase => frase.trim().length > 0);
+            
+            // Mostra o número de frases
+            document.getElementById("countphrases").innerText = "Número de frases: " + frases.length;
+        }
+        
+        // Adiciona o evento de focusout ao textarea
+        window.onload = function() {
+            document.getElementById("messagesInput").addEventListener("focusout", contarFrases);
+        };
+    </script>
+</body>
+</html>
