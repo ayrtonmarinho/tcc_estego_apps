@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Esteganografia com Múltiplas Imagens e ZIP</title>
+</head>
+<body>
+    <h1>Esteganografia com Múltiplas Imagens e ZIP</h1>
+
+    <h3>Carregar várias imagens para esteganografar:</h3>
+    <input type="file" id="inputImages" accept="image/*" multiple>
+    <br><br>
+
+    <label for="mensagem">Digite a mensagem para esconder:</label>
+    <input type="text" id="mensagem" placeholder="Mensagem secreta">
+    <br><br>
+
+    <label for="bits">Escolha quantos bits LSB usar:</label>
+    <select id="bits">
+        <option value="1">1 bit</option>
+        <option value="2">2 bits</option>
+    </select>
+    <br><br>
+
+    <button onclick="esteganografarImagens()">Esteganografar e baixar ZIP</button>
+    <div id="outputEstegano"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.6.0/jszip.min.js"></script>
+    <script src="/js/estegApp.js"></script>
+</body>
+</html>
