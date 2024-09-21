@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resize and Grayscale Images</title>
+    <link rel="stylesheet" href="/css/grayscale.css">
+</head>
+<body>
+    <h1>Resize and Grayscale Images</h1>
+    <div id="main_x">
+        <input type="file" id="imageInput" multiple accept="image/*">
+        <button id="processImages">Process Images</button>
+    </div>
+    <br><br>
+    <div id="link_down">
+        <a id="downloadLink" style="display: none;">Download ZIP</a>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+    <script>
+        const imageInput = document.getElementById('imageInput');
+        const processImagesButton = document.getElementById('processImages');
+        const downloadLink = document.getElementById('downloadLink');
+
+        processImagesButton.addEventListener('click', () => {
+            if (imageInput.files.length === 0) {
+                alert('Please select some images first.');
+                return;
+            }
+
+            const zip = new JSZip();
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            canvas.width = 256;
+            canvas.height = 256;
+
+            let processedImages = 0;
+            const totalImages = imageInput.files.length;
+
+            Array.from(imageInput.files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        // Resize and grayscale the image
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                        for (let i = 0; i < imageData.data.length; i += 4) {
+                            const avg = (imageData.data[i] + imageData.data[i + 1] + imageData.data[i + 2]) / 3;
+                            imageData.data[i] = avg;        // Red
+                            imageData.data[i + 1] = avg;    // Green
+                            imageData.data[i + 2] = avg;    // Blue
+                        }
+                        ctx.putImageData(imageData, 0, 0);
+
+                        // Add the processed image to the zip file
+                        canvas.toBlob(blob => {
+                            zip.file(file.name, blob);
+
+                            processedImages++;
+                            if (processedImages === totalImages) {
+                                zip.generateAsync({ type: 'blob' }).then(content => {
+                                    const url = URL.createObjectURL(content);
+                                    downloadLink.href = url;
+                                    downloadLink.download = 'processed_images.zip';
+                                    downloadLink.style.display = 'inline';
+                                    downloadLink.textContent = 'Download ZIP';
+                                });
+                            }
+                        }, 'image/jpeg');
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+    </script>
+</body>
+</html>

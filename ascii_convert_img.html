@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image to ASCII Converter with ZIP Download</title>
+    <style>
+        #output {
+            font-family: monospace;
+            white-space: pre;
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .ascii-image {
+            margin: 10px;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+</head>
+<body>
+    <h1>Image to ASCII Converter</h1>
+    <input type="file" id="file-input" multiple accept="image/*">
+    <button id="download-zip">Download as ZIP</button>
+    <div id="output"></div>
+
+    <script>
+        const asciiChars = "@%#*+=-:. ";  // ASCII characters to use
+        const zip = new JSZip();  // Initialize JSZip object
+        let asciiResults = {};  // To store the ASCII results for ZIP creation
+
+        document.getElementById('file-input').addEventListener('change', handleFiles, false);
+        document.getElementById('download-zip').addEventListener('click', downloadAsZip, false);
+
+        function handleFiles(event) {
+            const files = event.target.files;
+            const output = document.getElementById('output');
+            output.innerHTML = '';  // Clear output
+            asciiResults = {};  // Reset ASCII results
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.src = e.target.result;
+                    img.onload = function() {
+                        const asciiArt = convertImageToASCII(img, 256, 256);
+                        const fileName = file.name.replace(/\.[^/.]+$/, "");  // Remove file extension
+                        asciiResults[fileName] = asciiArt;  // Store ASCII result for ZIP
+                        displayASCII(asciiArt);
+                    };
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function convertImageToASCII(img, width, height) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = width;
+            canvas.height = height;
+            ctx.drawImage(img, 0, 0, width, height);
+
+            const imageData = ctx.getImageData(0, 0, width, height).data;
+            let asciiImage = '';
+
+            for (let y = 0; y < height; y++) {
+                let row = '';
+                for (let x = 0; x < width; x++) {
+                    const offset = (y * width + x) * 4;
+                    const r = imageData[offset];
+                    const g = imageData[offset + 1];
+                    const b = imageData[offset + 2];
+
+                    const gray = (r + g + b) / 3;
+                    const asciiChar = asciiChars[Math.floor(gray / 256 * asciiChars.length)];
+                    row += asciiChar;
+                }
+                asciiImage += row + '\n';
+            }
+
+            return asciiImage;
+        }
+
+        function displayASCII(asciiArt) {
+            const pre = document.createElement('pre');
+            pre.className = 'ascii-image';
+            pre.textContent = asciiArt;
+            document.getElementById('output').appendChild(pre);
+        }
+
+        function downloadAsZip() {
+            if (Object.keys(asciiResults).length === 0) {
+                alert('No images converted to ASCII yet!');
+                return;
+            }
+
+            for (const [fileName, asciiArt] of Object.entries(asciiResults)) {
+                zip.file(fileName + ".txt", asciiArt);  // Add each ASCII art as .txt file
+            }
+
+            zip.generateAsync({ type: "blob" }).then(function(content) {
+                saveAs(content, "ascii_images.zip");  // Trigger download of the ZIP file
+            });
+        }
+    </script>
+</body>
+</html>
