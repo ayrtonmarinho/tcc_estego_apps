@@ -17,3 +17,17 @@ h1 {
     margin: auto;
     text-align: center;
 }
+
+#link_down{
+    margin: auto;
+    text-align: center;
+}
+
+#downloadLink{
+    text-decoration: none;
+    font-size: 20pt;
+    color: chocolate;
+    border: 1px solid white;
+    padding: 20px;
+    border-radius: 5px;
+}
