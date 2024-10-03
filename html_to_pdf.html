@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML to PDF and Zip</title>
+    <style>
+        #hiddenDiv {
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Carregar arquivos HTML e exportar como PDF ZIP</h2>
+    <input type="file" id="fileInput" accept=".html" multiple>
+    <button onclick="convertToPDFAndZip()">Converter e Baixar ZIP</button>
+
+    <!-- Div oculta para renderizar o conteúdo HTML -->
+    <div id="hiddenDiv"></div>
+
+    <!-- Incluindo as bibliotecas necessárias -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.10/purify.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <script>
+        async function convertToPDFAndZip() {
+            const files = document.getElementById('fileInput').files;
+            if (files.length === 0) {
+                alert("Selecione ao menos um arquivo HTML.");
+                return;
+            }
+
+            const jsPDF = window.jspdf.jsPDF;
+            const zip = new JSZip();
+
+            // Iterar por todos os arquivos selecionados
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const content = await file.text();  // Lê o conteúdo do arquivo
+
+                // Sanitiza o conteúdo HTML com DOMPurify
+                const cleanContent = DOMPurify.sanitize(content);
+
+                // Inserir o conteúdo na div oculta
+                const hiddenDiv = document.getElementById('hiddenDiv');
+                hiddenDiv.innerHTML = cleanContent;
+
+                // Capturar o conteúdo do HTML como imagem usando html2canvas
+                const canvas = await html2canvas(hiddenDiv);
+                const imgData = canvas.toDataURL('image/png');
+
+                // Criar o PDF e adicionar a imagem capturada
+                const pdf = new jsPDF();
+                const imgWidth = 190;
+                const pageHeight = pdf.internal.pageSize.height;
+                const imgHeight = canvas.height * imgWidth / canvas.width;
+                let heightLeft = imgHeight;
+                let position = 0;
+
+                // Adiciona a imagem ao PDF e cria novas páginas se necessário
+                pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+
+                while (heightLeft >= 0) {
+                    position = heightLeft - imgHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                }
+
+                const pdfBlob = pdf.output('blob');
+                zip.file(`${file.name.replace('.html', '')}.pdf`, pdfBlob);
+            }
+
+            // Depois que todos os PDFs foram gerados, cria o arquivo ZIP
+            zip.generateAsync({ type: 'blob' }).then(function (content) {
+                // Baixar o arquivo ZIP
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(content);
+                link.download = "html_to_pdf.zip";
+                link.click();
+            });
+        }
+    </script>
+</body>
+</html>

@@ -6,6 +6,11 @@ document.getElementById('steganography-form').addEventListener('submit', functio
     const bits = parseInt(document.getElementById('bit-selection').value);
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
+    
+    console.log(files.length);
+    console.log(messages.length);
+
+    
 
     if (files.length !== messages.length) {
         alert('O número de imagens deve ser igual ao número de mensagens.');
@@ -107,4 +112,17 @@ document.getElementById('steganography-form').addEventListener('submit', functio
         };
         reader.readAsDataURL(file);
     }
+});
+
+
+const textarea = document.getElementById('message-input');
+const span = document.getElementById('qtd_msgs');
+
+// Função para atualizar o span ao perder o foco do textarea
+textarea.addEventListener('blur', function () {
+    const messages_qtd = document.getElementById('message-input').value.split(',');
+    // Obtém o valor do textarea
+    const valor = messages_qtd.length;
+    // Exibe o valor no span
+    span.textContent = valor;
 });

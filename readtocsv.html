@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de CSV de Imagens</title>
+</head>
+<body>
+    <h1>Gerador de CSV de Imagens</h1>
+    <input type="file" id="imageInput" webkitdirectory directory multiple>
+    <button onclick="generateCSV()">Gerar CSV</button>
+    <br><br>
+    <a id="downloadLink" style="display:none;">Baixar CSV</a>
+
+    <script>
+        function generateCSV() {
+            const input = document.getElementById('imageInput');
+            const files = input.files;
+            if (files.length === 0) {
+                alert('Por favor, selecione uma pasta de imagens.');
+                return;
+            }
+
+            // Cabeçalhos do CSV
+            let csvContent = "Nome da Imagem,Mensagem,Esteg,Tipo de Esteg\n";
+
+            // Itera sobre os arquivos selecionados
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                
+                if (file.type.startsWith("image/")) {
+                    const fileName = file.name;
+                    const mensagem = "None";
+                    const esteg = "False";
+                    const tipoEsteg = "-";
+                    
+                    // Cria a linha do CSV
+                    const row = `${fileName},${mensagem},${esteg},${tipoEsteg}\n`;
+                    csvContent += row;
+                }
+            }
+
+            // Cria um arquivo blob CSV e um link para download
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const downloadLink = document.getElementById('downloadLink');
+            downloadLink.href = url;
+            downloadLink.download = 'imagens.csv';
+            downloadLink.style.display = 'inline';
+            downloadLink.textContent = 'Baixar CSV';
+        }
+    </script>
+</body>
+</html>
